@@ -1,25 +1,32 @@
 # 01_data_cleaning.py
 # Author: Azmatulla Mohammad
-# Purpose: Clean HR dataset for model training
+# Purpose: Clean IBM HR dataset for model training
 
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
-# 📥 Load original dataset
-df = pd.read_csv("data/WA_Fn-UseC_-HR-Employee-Attrition.csv")
+# 📥 Load the original dataset
+DATA_PATH = "data/WA_Fn-UseC_-HR-Employee-Attrition.csv"
+df = pd.read_csv(DATA_PATH)
+print(f"✅ Loaded data from {DATA_PATH} with shape: {df.shape}")
 
-# 🧹 Drop irrelevant columns
-df.drop(columns=["EmployeeCount", "StandardHours", "Over18", "EmployeeNumber"], inplace=True)
+# 🧹 Drop irrelevant or constant columns
+columns_to_drop = ["EmployeeCount", "StandardHours", "Over18", "EmployeeNumber"]
+df.drop(columns=columns_to_drop, inplace=True)
+print(f"🧹 Dropped columns: {columns_to_drop}")
 
-# 🔁 Encode binary categorical variables
+# 🔁 Encode binary categorical columns
+binary_cols = ["Attrition", "Gender", "OverTime"]
 le = LabelEncoder()
-df["Attrition"] = le.fit_transform(df["Attrition"])       # Yes=1, No=0
-df["Gender"] = le.fit_transform(df["Gender"])             # Male=1, Female=0
-df["OverTime"] = le.fit_transform(df["OverTime"])         # Yes=1, No=0
+for col in binary_cols:
+    df[col] = le.fit_transform(df[col])
+    print(f"🔁 Encoded column: {col}")
 
-# 🔄 One-hot encode remaining categorical columns
+# 🔄 One-hot encode multi-class categorical features
 df = pd.get_dummies(df, drop_first=True)
+print(f"📊 One-hot encoded remaining categorical columns. Final shape: {df.shape}")
 
-# 💾 Save cleaned dataset
-df.to_csv("data/cleaned_hr_data.csv", index=False)
-print("✅ Cleaned data saved to /data/cleaned_hr_data.csv")
+# 💾 Save the cleaned dataset
+OUTPUT_PATH = "data/cleaned_hr_data.csv"
+df.to_csv(OUTPUT_PATH, index=False)
+print(f"✅ Cleaned data saved to {OUTPUT_PATH}")
